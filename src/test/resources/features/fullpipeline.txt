@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'TEST_TYPE', defaultValue: '@smoke', description: 'Type of test to run', trim: true)
+        choice(name: 'BROWSER', choices: ['chrome', 'remote-chrome', 'firefox'], description: 'Browser to test')
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Build'
+            }
+        }
+
+
+        stage('Test-Unit') {
+            steps {
+                echo 'Test-Unit'
+            }
+        }
+
+
+        stage('Test-Integration') {
+            steps {
+                echo 'Test-Integration'
+            }
+        }
+
+
+        stage('Test-Functional') {
+            steps {
+
+              // Clone Repository
+              echo 'Clone the Project'
+              git 'https://github.com/Cydeo-B36/selenium-grid-demo'
+
+
+              // Run Tests
+              echo 'Run Tests'
+              bat "mvn clean test -Dcucumber.filter.tags=${params.TEST_TYPE} -DBROWSER=${params.BROWSER}"
+
+              // Create Report
+              echo 'Cucumber Report'
+              cucumber(
+                    failedFeaturesNumber: -1,
+                    failedScenariosNumber: -1,
+                    failedStepsNumber: -1,
+                    fileIncludePattern: '**/*.json',
+                    pendingStepsNumber: -1,
+                    skippedStepsNumber: -1,
+                    sortingMethod: 'ALPHABETICAL',
+                    undefinedStepsNumber: -1
+                )
+
+            }
+        }
+
+
+        stage('Test-Performance') {
+            steps {
+                echo 'Test-Performance'
+            }
+        }
+
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploy'
+            }
+        }
+
+}}
